@@ -1,11 +1,11 @@
 name: pre-commit
-on:
-  pull_request
+on: pull_request
 jobs:
   pre-commit:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+    - uses: clonedSemicolon/setup-strace@v13
     - uses: actions/setup-python@v5
       with:
         python-version: 3.9
@@ -16,5 +16,10 @@ jobs:
         output: ' '
     - uses: pre-commit/action@v3.0.0
       name: ruff-pre-commit-run
-      with: 
+      with:
         extra_args: --files ${{ steps.file_changes.outputs.files }}
+    - name: Upload strace artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: strace-logs-${{ github.job }}-${{ matrix.flavor || 'lint' }}-${{ github.run_id }}-${{ github.run_attempt }}-${{ strategy.job-index || 0 }}
+        path: /home/runner/strace_logs/
